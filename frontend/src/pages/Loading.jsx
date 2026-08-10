@@ -15,7 +15,7 @@ function Loading() {
       try {
 
         const response = await fetch(
-          "http://127.0.0.1:5000/analyze",
+          "https://news-sense-hc4a.onrender.com/analyze",
           {
             method: "POST",
             headers: {
