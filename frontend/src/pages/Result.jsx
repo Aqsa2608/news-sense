@@ -1,4 +1,5 @@
 import { useLocation, useNavigate } from "react-router-dom";
+import { useState } from "react";
 import Header from "../components/Header";
 
 function Result() {
@@ -8,6 +9,55 @@ function Result() {
   const category = location.state?.category || "Unknown";
   const confidence = location.state?.confidence || 0;
   const recommendations = location.state?.recommendations || [];
+
+  // Original article
+  const article = location.state?.article || "";
+
+  // Summary states
+  const [summary, setSummary] = useState("");
+  const [loadingSummary, setLoadingSummary] = useState(false);
+  const [summaryError, setSummaryError] = useState("");
+
+  // ================= SUMMARIZE ARTICLE =================
+
+  const handleSummarize = async () => {
+    if (!article) {
+      setSummaryError("Original article is not available.");
+      return;
+    }
+
+    setLoadingSummary(true);
+    setSummaryError("");
+    setSummary("");
+
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/summarize`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            article: article,
+          }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to summarize article");
+      }
+
+      setSummary(data.summary);
+    } catch (error) {
+      console.error("Summary Error:", error);
+      setSummaryError("Unable to summarize the article. Please try again.");
+    } finally {
+      setLoadingSummary(false);
+    }
+  };
 
   return (
     <div className="app">
@@ -39,6 +89,79 @@ function Result() {
           </div>
         </div>
 
+        {/* ================= SUMMARY ================= */}
+
+        <section
+          style={{
+            marginTop: "25px",
+            marginBottom: "30px",
+          }}
+        >
+          <button
+            className="primary-button"
+            onClick={handleSummarize}
+            disabled={loadingSummary}
+            style={{
+              cursor: loadingSummary ? "not-allowed" : "pointer",
+              opacity: loadingSummary ? 0.7 : 1,
+            }}
+          >
+            {loadingSummary
+              ? "Summarizing..."
+              : "Summarize Article"}
+          </button>
+
+          {/* Summary Error */}
+          {summaryError && (
+            <div
+              style={{
+                marginTop: "15px",
+                padding: "15px",
+                background: "#fee2e2",
+                color: "#b91c1c",
+                borderRadius: "10px",
+              }}
+            >
+              {summaryError}
+            </div>
+          )}
+
+          {/* Summary Result */}
+          {summary && (
+            <div
+              style={{
+                marginTop: "20px",
+                background: "#ffffff",
+                border: "1px solid #e1e5eb",
+                borderRadius: "12px",
+                padding: "25px",
+                boxShadow: "0 4px 12px rgba(0, 0, 0, 0.08)",
+              }}
+            >
+              <h2
+                style={{
+                  marginTop: 0,
+                  marginBottom: "12px",
+                  color: "#111827",
+                }}
+              >
+                Article Summary
+              </h2>
+
+              <p
+                style={{
+                  color: "#55708f",
+                  fontSize: "16px",
+                  lineHeight: "1.7",
+                  margin: 0,
+                }}
+              >
+                {summary}
+              </p>
+            </div>
+          )}
+        </section>
+
         {/* ================= RECOMMENDATIONS ================= */}
         <section className="recommendation-section">
           <h2>Recommended Articles</h2>
@@ -47,11 +170,11 @@ function Result() {
             Explore similar news articles:
           </p>
 
-          {/* Cards */}
           <div
             style={{
               display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))",
+              gridTemplateColumns:
+                "repeat(auto-fit, minmax(250px, 1fr))",
               gap: "20px",
               marginTop: "20px",
             }}
@@ -111,7 +234,8 @@ function Result() {
                     ? article.description.substring(0, 180)
                     : "No description available."}
 
-                  {article.description && article.description.length > 180
+                  {article.description &&
+                  article.description.length > 180
                     ? "..."
                     : ""}
                 </p>
@@ -145,7 +269,10 @@ function Result() {
         </section>
 
         {/* ================= CHECK ANOTHER ARTICLE ================= */}
-        <button className="primary-button" onClick={() => navigate("/home")}>
+        <button
+          className="primary-button"
+          onClick={() => navigate("/home")}
+        >
           Check Another Article
         </button>
       </main>
