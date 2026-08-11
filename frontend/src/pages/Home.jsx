@@ -2,9 +2,10 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Header from "../components/Header";
 
+const BACKEND_URL = "https://news-sense-api.onrender.com";
+
 function Home() {
   const [article, setArticle] = useState("");
-
   const [summary, setSummary] = useState("");
   const [loadingSummary, setLoadingSummary] = useState(false);
   const [summaryError, setSummaryError] = useState("");
@@ -40,7 +41,7 @@ function Home() {
 
     try {
       const response = await fetch(
-  "http://127.0.0.1:5000/summarize",
+        `${BACKEND_URL}/summarize`,
         {
           method: "POST",
           headers: {
@@ -55,15 +56,20 @@ function Home() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || "Unable to summarize article");
+        throw new Error(
+          data.error || "Unable to summarize article"
+        );
       }
 
       setSummary(data.summary);
+
     } catch (error) {
       console.error("Summary Error:", error);
+
       setSummaryError(
         "Unable to summarize the article. Please try again."
       );
+
     } finally {
       setLoadingSummary(false);
     }
@@ -103,12 +109,16 @@ function Home() {
             }}
           >
 
+            {/* ANALYZE BUTTON */}
+
             <button
               className="primary-button"
               onClick={analyzeArticle}
             >
               Analyze Article
             </button>
+
+            {/* SUMMARIZE BUTTON */}
 
             <button
               className="primary-button"
@@ -128,7 +138,7 @@ function Home() {
 
           </div>
 
-          {/* ================= SUMMARY ================= */}
+          {/* ================= SUMMARY ERROR ================= */}
 
           {summaryError && (
             <div
@@ -145,6 +155,8 @@ function Home() {
             </div>
           )}
 
+          {/* ================= SUMMARY RESULT ================= */}
+
           {summary && (
             <div
               style={{
@@ -157,6 +169,7 @@ function Home() {
                 textAlign: "left"
               }}
             >
+
               <h2
                 style={{
                   marginTop: 0,
@@ -177,6 +190,7 @@ function Home() {
               >
                 {summary}
               </p>
+
             </div>
           )}
 
@@ -186,7 +200,9 @@ function Home() {
 
         <section className="features-section">
 
-          <h2>Analyze your article to discover:</h2>
+          <h2>
+            Analyze your article to discover:
+          </h2>
 
           <div className="feature-list">
 
