@@ -89,79 +89,10 @@ function Result() {
           </div>
         </div>
 
-        {/* ================= SUMMARY ================= */}
+        
+          
 
-        <section
-          style={{
-            marginTop: "25px",
-            marginBottom: "30px",
-          }}
-        >
-          <button
-            className="primary-button"
-            onClick={handleSummarize}
-            disabled={loadingSummary}
-            style={{
-              cursor: loadingSummary ? "not-allowed" : "pointer",
-              opacity: loadingSummary ? 0.7 : 1,
-            }}
-          >
-            {loadingSummary
-              ? "Summarizing..."
-              : "Summarize Article"}
-          </button>
-
-          {/* Summary Error */}
-          {summaryError && (
-            <div
-              style={{
-                marginTop: "15px",
-                padding: "15px",
-                background: "#fee2e2",
-                color: "#b91c1c",
-                borderRadius: "10px",
-              }}
-            >
-              {summaryError}
-            </div>
-          )}
-
-          {/* Summary Result */}
-          {summary && (
-            <div
-              style={{
-                marginTop: "20px",
-                background: "#ffffff",
-                border: "1px solid #e1e5eb",
-                borderRadius: "12px",
-                padding: "25px",
-                boxShadow: "0 4px 12px rgba(0, 0, 0, 0.08)",
-              }}
-            >
-              <h2
-                style={{
-                  marginTop: 0,
-                  marginBottom: "12px",
-                  color: "#111827",
-                }}
-              >
-                Article Summary
-              </h2>
-
-              <p
-                style={{
-                  color: "#55708f",
-                  fontSize: "16px",
-                  lineHeight: "1.7",
-                  margin: 0,
-                }}
-              >
-                {summary}
-              </p>
-            </div>
-          )}
-        </section>
-
+          
         {/* ================= RECOMMENDATIONS ================= */}
         <section className="recommendation-section">
           <h2>Recommended Articles</h2>
