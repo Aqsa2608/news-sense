@@ -19,6 +19,8 @@ function App() {
         <Route path="/loading" element={<Loading />} />
 
         <Route path="/result" element={<Result />} />
+
+
       </Routes>
     </BrowserRouter>
   );

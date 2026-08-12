@@ -2,21 +2,26 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Header from "../components/Header";
 
-const BACKEND_URL = "https://news-sense-api.onrender.com";
-
 function Home() {
   const [article, setArticle] = useState("");
-  const [summary, setSummary] = useState("");
-  const [loadingSummary, setLoadingSummary] = useState(false);
-  const [summaryError, setSummaryError] = useState("");
 
   const navigate = useNavigate();
 
-  // ================= ANALYZE ARTICLE =================
+  const characterCount = article.trim().length;
+  const isValid = characterCount >= 150;
+
+  // ==========================================
+  // ANALYZE ARTICLE
+  // ==========================================
 
   const analyzeArticle = () => {
     if (!article.trim()) {
       alert("Please enter a news article first.");
+      return;
+    }
+
+    if (characterCount < 150) {
+      alert("Please enter at least 150 characters.");
       return;
     }
 
@@ -27,52 +32,26 @@ function Home() {
     });
   };
 
-  // ================= SUMMARIZE ARTICLE =================
+  // ==========================================
+  // SUMMARIZE ARTICLE
+  // ==========================================
 
-  const summarizeArticle = async () => {
+  const summarizeArticle = () => {
     if (!article.trim()) {
       alert("Please enter a news article first.");
       return;
     }
 
-    setLoadingSummary(true);
-    setSummary("");
-    setSummaryError("");
-
-    try {
-      const response = await fetch(
-        `${BACKEND_URL}/summarize`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            article: article
-          })
-        }
-      );
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(
-          data.error || "Unable to summarize article"
-        );
-      }
-
-      setSummary(data.summary);
-
-    } catch (error) {
-      console.error("Summary Error:", error);
-
-      setSummaryError(
-        "Unable to summarize the article. Please try again."
-      );
-
-    } finally {
-      setLoadingSummary(false);
+    if (characterCount < 150) {
+      alert("Please enter at least 150 characters.");
+      return;
     }
+
+    navigate("/summary", {
+      state: {
+        article: article
+      }
+    });
   };
 
   return (
@@ -82,14 +61,22 @@ function Home() {
 
       <main className="home-container">
 
+        {/* ==========================================
+            HERO SECTION
+        ========================================== */}
+
         <section className="hero-section">
 
           <h1>Enter News Article</h1>
 
           <p className="subtitle">
             Paste or type a news article below. We will classify
-            its category, recommend similar articles, and summarize it.
+            its category and recommend similar articles.
           </p>
+
+          {/* ==========================================
+              ARTICLE TEXTAREA
+          ========================================== */}
 
           <textarea
             value={article}
@@ -97,119 +84,99 @@ function Home() {
             placeholder="Paste or type your news article here..."
           />
 
-          {/* ================= BUTTONS ================= */}
+          {/* ==========================================
+              CHARACTER COUNT
+          ========================================== */}
 
-          <div
+          <p
             style={{
-              display: "flex",
-              gap: "15px",
-              justifyContent: "center",
-              marginTop: "20px",
-              flexWrap: "wrap"
+              textAlign: "right",
+              fontSize: "14px",
+              marginTop: "8px",
+              marginBottom: "15px",
+              color: isValid ? "#16a34a" : "#dc2626"
             }}
           >
+            {characterCount} characters
+          </p>
 
-            {/* ANALYZE BUTTON */}
+          {/* ==========================================
+              MESSAGE
+          ========================================== */}
 
-            <button
-              className="primary-button"
-              onClick={analyzeArticle}
-            >
-              Analyze Article
-            </button>
-
-            {/* SUMMARIZE BUTTON */}
-
-            <button
-              className="primary-button"
-              onClick={summarizeArticle}
-              disabled={loadingSummary}
+          {characterCount > 0 && characterCount < 150 && (
+            <p
               style={{
-                opacity: loadingSummary ? 0.7 : 1,
-                cursor: loadingSummary
-                  ? "not-allowed"
-                  : "pointer"
+                color: "#dc2626",
+                fontSize: "14px",
+                textAlign: "center",
+                marginBottom: "15px"
               }}
             >
-              {loadingSummary
-                ? "Summarizing..."
-                : "Summarize Article"}
-            </button>
-
-          </div>
-
-          {/* ================= SUMMARY ERROR ================= */}
-
-          {summaryError && (
-            <div
-              style={{
-                marginTop: "25px",
-                padding: "15px",
-                background: "#fee2e2",
-                color: "#b91c1c",
-                borderRadius: "10px",
-                textAlign: "left"
-              }}
-            >
-              {summaryError}
-            </div>
+              Please enter at least 150 characters.
+            </p>
           )}
 
-          {/* ================= SUMMARY RESULT ================= */}
-
-          {summary && (
-            <div
+          {characterCount >= 150 && characterCount <= 200 && (
+            <p
               style={{
-                marginTop: "30px",
-                padding: "25px",
-                background: "#ffffff",
-                border: "1px solid #e1e5eb",
-                borderRadius: "12px",
-                boxShadow: "0 4px 12px rgba(0, 0, 0, 0.08)",
-                textAlign: "left"
+                color: "#16a34a",
+                fontSize: "14px",
+                textAlign: "center",
+                marginBottom: "15px"
               }}
             >
-
-              <h2
-                style={{
-                  marginTop: 0,
-                  marginBottom: "15px",
-                  color: "#111827"
-                }}
-              >
-                Article Summary
-              </h2>
-
-              <p
-                style={{
-                  color: "#55708f",
-                  fontSize: "16px",
-                  lineHeight: "1.7",
-                  margin: 0
-                }}
-              >
-                {summary}
-              </p>
-
-            </div>
+              ✓ Article length is sufficient.
+            </p>
           )}
+
+          {characterCount > 200 && (
+            <p
+              style={{
+                color: "#55708f",
+                fontSize: "14px",
+                textAlign: "center",
+                marginBottom: "15px"
+              }}
+            >
+            </p>
+          )}
+
+          {/* ==========================================
+              ANALYZE BUTTON
+          ========================================== */}
+
+          <button
+            className="primary-button"
+            onClick={analyzeArticle}
+            disabled={!isValid}
+            style={{
+              opacity: isValid ? 1 : 0.6,
+              cursor: isValid ? "pointer" : "not-allowed"
+            }}
+          >
+            Analyze Article
+          </button>
+
 
         </section>
 
-        {/* ================= FEATURES ================= */}
+        {/* ==========================================
+            FEATURES SECTION
+        ========================================== */}
 
         <section className="features-section">
 
-          <h2>
-            Analyze your article to discover:
-          </h2>
+          <h2>Analyze your article to discover:</h2>
 
           <div className="feature-list">
 
             <p>✓ Predicts News Category</p>
+
             <p>✓ Shows Confidence Score</p>
+
             <p>✓ Recommends Similar Articles</p>
-            <p>✓ Summarizes News Articles</p>
+
 
           </div>
 
